@@ -1,0 +1,69 @@
+import requests
+from bs4 import BeautifulSoup
+
+fn2 = "//Users//Kyle//Downloads//Book9.csv"
+fh2.write("名稱"+';' + "淨值"+';' + "當日漲跌幅"+';'+"基金規模(百萬台幣)"+';' + "網址"+"\n")
+
+for repeat in range(1):
+    url = 'https://www.fundrich.com.tw/theme-fund/?keyword=全球%20科技'
+    #url += "?page="+str(repeat)
+    r = requests.get(url) #把網站的html碼抓下來
+
+    soup = BeautifulSoup(r.text,"html.parser") #用BeautifulSoup整合檔案和parser準備開始解析內容
+
+    titles =[]
+    links =[]
+    net_values =[]
+    rate_of_change =[]
+    size_of_funds = []
+    negative_mark = []
+    final_list_of_rate_of_change = []
+    counter = 1
+
+    attr = {"class" : "title-link"}
+    title_tags = soup.find_all("a",attrs = attr)
+    for tag in title_tags:
+        title_str = tag.get_text().strip()
+        link_str ="https://www.fundrich.com.tw/"+ tag["href"]
+        titles.append(title_str)
+        links.append(link_str)
+
+    attr = {"class" : "left"} #html顯示方式：class="lext"
+    net_values_tags = soup.find_all("span", attrs = attr) #class="left"裡面的"span"
+    for tag in net_values_tags:
+        t = tag.get_text().strip()
+        if "." in t and "@" not in t:
+            net_values.append(t)
+
+
+    attr = {"class" : ("left up-color","left down-color")}
+    rate_of_change_tags = soup.find_all("div", attrs = attr)
+    for tag in rate_of_change_tags:
+        r = tag.get_text().strip()
+        if "%" in r and counter <= len(titles):
+            counter += 1
+            rate_of_change.append(r)
+            if "up" in str(tag):
+                negative_mark.append("+")
+            elif "down" in str(tag):
+                negative_mark.append("-")
+
+    attr = {"class" : "text-color right"}
+    size_of_funds_tags = soup.find_all("div", attrs = attr)
+    for tag in size_of_funds_tags:
+        s = tag.get_text().strip()
+        if "." in s:
+            size_of_funds.append(s)
+
+    for sex in range(len(titles)):
+        final_list_of_rate_of_change.append(negative_mark[sex] + rate_of_change[sex])
+
+    for i in range(len(titles)):
+        fh2.write(titles[i]+';'+str(net_values[i])+';'+str(final_list_of_rate_of_change[i])+';'+str(size_of_funds[i])+';'+links[i]+"\n")
+
+fh2.close()
+
+
+
+
+
