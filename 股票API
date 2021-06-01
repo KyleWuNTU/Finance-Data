@@ -1,0 +1,15 @@
+import pandas as pd
+import pandas_datareader as web
+
+
+the_csv = "//Users//Kyle//Desktop/pandas_test1.csv"
+create_csv = open(the_csv ,"w",encoding = "utf - 8")
+
+all_data = {ticker: web.get_data_yahoo(ticker) #ticker是股票代碼的意思
+for ticker in ["AAPL", "IBM","MSFT","GOOG","1101.TW"]}
+
+price = pd.DataFrame({ticker: data["Adj Close"]
+                      for ticker, data in all_data.items()})
+volume = pd.DataFrame({ticker: data["Volume"]
+                      for ticker, data in all_data.items()})
+price.to_csv(the_csv)
